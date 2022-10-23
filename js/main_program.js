@@ -24,14 +24,32 @@ function init() {
     document.getElementById("proj-table").addEventListener('click', (evt) => {
         if (evt.target.id.charAt(0) === 'e' && evt.target.id.charAt(1) !== 'd') {
             editProject(evt.target.id);
-            console.log(evt.target.id);
+            let queryStatus = document.querySelector("#query-status");
+            if (queryStatus === null){
+                queryStatus = createQueryStatusBar();
+            }
+            queryStatus.textContent = "Editing project";
         } else if (evt.target.id.charAt(0) === 't') {
-            console.log(evt.target.id);
             deleteProject(evt.target.id);
+            let queryStatus = document.querySelector("#query-status");
+            if (queryStatus === null){
+                queryStatus = createQueryStatusBar();
+            }
+            queryStatus.textContent = "Deleted 1 project";
         } else if (evt.target.id.charAt(0) === 's') {
             saveEdit(evt.target.id);
+            let queryStatus = document.querySelector("#query-status");
+            if (queryStatus === null){
+                queryStatus = createQueryStatusBar();
+            }
+            queryStatus.textContent = "Saved 1 project";
         } else if (evt.target.id.charAt(0) === 'c') {
             cancelEdit(evt.target.id);
+            let queryStatus = document.querySelector("#query-status");
+            if (queryStatus === null){
+                queryStatus = createQueryStatusBar();
+            }
+            queryStatus.textContent = "Canceled editing the project";
         }
     });
     document.getElementById('submit').addEventListener('click', addProject);

@@ -254,7 +254,6 @@ function buttonEnb() {
             break;
         }
     }
-    //console.log(`Is button enabled? ${valid}`);
     button.disabled = !valid;
 }
 
@@ -495,7 +494,7 @@ function searchByKeyword() {
         if (queryStatus !== null) {
             outputSection.removeChild(queryStatus);
         }
-        projRender(getIndexArrFromProjArr(projArr));
+        addManyProjectsToTable(getIndexArrFromProjArr(projArr));
     } else {
         projArr.filter((obj, i) => {
             for (let value of Object.values(obj)) {
@@ -512,7 +511,7 @@ function searchByKeyword() {
         }
         outputSection.insertBefore(queryStatus, tableParent);
         queryStatus.textContent = `Found ${indexArr.length} projects for the keyword "${keyWord}"`;
-        projRender(indexArr);
+        addManyProjectsToTable(indexArr);
     }
 }
 
@@ -546,6 +545,7 @@ function getIndexArrFromProjArr(projArr) {
     return indexArr;
 }
 
+// name of projArr in local storage
 let projArrInStorageName = "projects";
 
 /**
@@ -553,10 +553,16 @@ let projArrInStorageName = "projects";
  * Saves all project in projArr to local storage, overwriting all projects previously stored
  */
 function saveAllProjects() {
+    
+    let queryStatus = document.querySelector("#query-status");
+    if (queryStatus === null) {
+        queryStatus = createQueryStatusBar();
+    }
     if (projArr.length == 0) {
-        alert("There are no projects to save");
+        queryStatus.textContent = "There are no projects to save";
     } else if (window.confirm("Are you sure you want to save these projects? Projects that are already in storage will be overwritten")) {
         localStorage.setItem(projArrInStorageName, JSON.stringify(projArr));
+        queryStatus.textContent = projArr.length == 1 ? " 1 project was saved" : projArr.length + " projects were saved";
     }
 }
 
@@ -565,8 +571,16 @@ function saveAllProjects() {
  * clears all projects from localStorage
  */
 function clearStorage() {
-    if (window.confirm("Are you sure you want to delete all projects in storage?")) {
+    let queryStatus = document.querySelector("#query-status");
+    if (queryStatus === null) {
+        queryStatus = createQueryStatusBar();
+    }
+    if (localStorage.getItem(projArrInStorageName) === null){
+        queryStatus.textContent = "There are no projects in local storage";
+    }
+    else if (window.confirm("Are you sure you want to delete all projects in storage?")) {
         localStorage.removeItem(projArrInStorageName);
+        queryStatus.textContent = "All projects were cleared from local storage";
     }
 }
 
@@ -575,20 +589,23 @@ function clearStorage() {
  * Saves all project in projArr to local storage, without overwriting all projects previously stored
  */
 function appendAllProjects() {
+    let queryStatus = document.querySelector("#query-status");
+    if (queryStatus === null) {
+        queryStatus = createQueryStatusBar();
+    }
     if (projArr.length == 0) {
-        alert("There are no projects to append");
+        queryStatus.textContent = "There are no projects to append";
     } else if (localStorage.getItem(projArrInStorageName) === null) {
-        localStorage.setItem(projArrInStorageName, JSON.stringify(projArr));
+        localStorage.setItem(projArrInStorageName, JSON.stringify(projArr)); 
+        queryStatus.textContent = projArr.length == 1 ? " 1 project was saved" : projArr.length + " projects were saved";   
     } else {
         let projectsInStorage = JSON.parse(localStorage.getItem(projArrInStorageName));
-        let counter = 0;
         projArr.forEach((proj) => {
-            counter++;
             projectsInStorage.push(proj);
         });
         localStorage.setItem(projArrInStorageName, JSON.stringify(projectsInStorage))
-        alert(counter == 1 ? " 1 item was saved" : counter + " items were saved");
-    }
+        queryStatus.textContent = projArr.length == 1 ? " 1 project was saved" : projArr.length + " projects were saved";   
+    }   
 }
 
 /**
@@ -596,12 +613,17 @@ function appendAllProjects() {
  * Loads all projects from localStorage and renders them in the table
  */
 function loadAllProjects() {
+    let queryStatus = document.querySelector("#query-status");
+    if (queryStatus === null) {
+        queryStatus = createQueryStatusBar();
+    }
     if (localStorage.getItem(projArrInStorageName) === null) {
-        alert("There are no projects to load");
+        queryStatus.textContent = "There are no projects to load";
     } else {
         let projects = JSON.parse(localStorage.getItem(projArrInStorageName));
         projArr = projects;
         addManyProjectsToTable(getIndexArrFromProjArr(projArr));
+        queryStatus.textContent = projArr.length == 1 ? " 1 project was loaded" : projArr.length + " projects were loaded";        
     }
 }
 
@@ -626,4 +648,13 @@ function sortByColumn(event) {
         return obj1Field > obj2Field ? 1 : obj1Field < obj2Field ? -1 : 0;
     });
     addManyProjectsToTable(getIndexArrFromProjArr(projArr));
+}
+
+function createQueryStatusBar(){
+    let queryStatus = document.createElement("div");
+    queryStatus.setAttribute("id", "query-status");
+    let outputSection = document.querySelector("#output-section");
+    let tableParent = document.querySelector("#table-parent");
+    outputSection.insertBefore(queryStatus, tableParent);
+    return queryStatus;
 }
